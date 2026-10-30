@@ -14,3 +14,5 @@ html[lang="ko"] body{font-family:ShilinKorean,Arial,system-ui,"Microsoft JhengHe
 .market-option{text-decoration:none}noscript{display:block;margin:24px auto;max-width:1400px;padding:20px}noscript a{text-decoration:underline}
 
 .header-actions #download-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;min-height:46px;border-radius:8px}.pdf-tag{font-size:10px;font-weight:800;letter-spacing:.03em;border:1px solid #ffffff70;border-radius:3px;padding:1px 4px}@media(max-width:700px){.header-actions #download-btn{padding:9px;gap:5px;min-height:42px}.header-actions #download-btn svg{width:19px}.header-actions #download-btn .pdf-tag{display:inline}}
+
+.guide-footer-link{color:#16786e;text-decoration:underline;text-underline-offset:3px}footer{flex-wrap:wrap;gap:12px}
