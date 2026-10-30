@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://shilin-walk-map.github.io/sitemap.xml
