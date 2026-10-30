@@ -10,7 +10,7 @@ Language pages: [ja](https://shilin-walk-map.github.io/ja/) · [zh-hant-hk](http
 
 GitHub Pages organization home: `shilin-walk-map/shilin-walk-map.github.io`, publish the `main` branch, root folder. Static HTML/CSS/JavaScript; no server or API key is required. Each edition has pre-rendered localized text, canonical URL, and reciprocal language links.
 
-Paper maps will be added separately after their QR codes are updated to the production website.
+Paper maps: 12 one-page A4 landscape PDFs are available through the download button in each language edition. All QR codes link to https://shilin-walk-map.github.io/. No printable PNG downloads are provided.
 
 Map locations are illustrations. Walking directions open in the selected map service. Transport schedules have a review date and official source links on the website.
 
