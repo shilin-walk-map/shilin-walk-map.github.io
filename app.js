@@ -12,6 +12,19 @@ vn:{heading:'Tối nay, cùng khám phá Sĩ Lâm.',intro:'Chạm vào số đ�
 th:{heading:'คืนนี้ ไปเดินชิมที่ซื่อหลินกัน',intro:'แตะหมายเลขเพื่อดูร้านและเส้นทางเดิน',loop:'เดินหนึ่งรอบ ค่อย ๆ ชิม',download:'แผนที่กระดาษ',map:'แผนที่ตลาดกลางคืน',routeToggle:'เส้นทางเดินเที่ยว',gesture:'ลากเพื่อเลื่อน · ใช้สองนิ้วเพื่อซูม',tap:'แตะหมายเลขเพื่อดูร้าน',quick:'ก่อนออกเดินทาง',navigationNote:'เปิดเส้นทางเดินในแอปแผนที่ที่คุณเลือก',walk:'เส้นทางเดิน',showOnMap:'ดูบนแผนที่',changeLanguage:'เปลี่ยนภาษา / ภูมิภาค',empty:'ไม่พบร้านที่ค้นหา',printHint:'A4 แนวนอน · พิมพ์ที่ 100%',search:'ค้นหาร้านหรืออาหาร',toilet:'ห้องน้ำ',zoomIn:'ขยาย',zoomOut:'ย่อ',fit:'ดูแผนที่ทั้งหมด',close:'ปิด'}
 };
 translations.zh={...translations.hk,intro:'點選地圖編號，找美食、查看步行路線。',loop:'逛一圈，慢慢吃。',tap:'點選編號查看店家',empty:'沒有符合的店家。',toilet:'廁所'};
+const touchGestures={
+ en:'Swipe to scroll the page · Use two fingers to move or zoom the map',
+ jp:'1本指でページをスクロール · 2本指で地図を移動・拡大縮小',
+ zh:'單指捲動頁面 · 雙指移動或縮放地圖',
+ hk:'單指捲動頁面 · 雙指移動或縮放地圖',
+ cn:'单指滚动页面 · 双指移动或缩放地图',
+ kr:'한 손가락으로 페이지 스크롤 · 두 손가락으로 지도 이동·확대·축소',
+ vn:'Vuốt một ngón để cuộn trang · Dùng hai ngón để di chuyển hoặc thu phóng bản đồ',
+ th:'ใช้นิ้วเดียวเลื่อนหน้าเว็บ · ใช้สองนิ้วเลื่อนหรือซูมแผนที่'
+};
+const touchInput=matchMedia('(any-pointer: coarse)');
+function updateGestureHint(){all('[data-ui="gesture"]').forEach(el=>el.textContent=touchInput.matches?(touchGestures[market?.id]||touchGestures.en):t.gesture)}
+touchInput.addEventListener('change',updateGestureHint);
 const choices={global:['English','General · All regions'],zh:['繁體中文','通用版 · 所有地區'],jp:['日本語','日本語版'],hk:['繁體中文','香港精選'],kr:['한국어','한국어판'],us:['English','United States'],cn:['简体中文','简体中文版'],ph:['English','Philippines'],sg:['English','Singapore'],vn:['Tiếng Việt','Bản tiếng Việt'],th:['ไทย','ฉบับภาษาไทย'],my:['English','Malaysia']};
 const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const placeById=new Map(data.places.map(p=>[p.id,p]));
@@ -41,7 +54,7 @@ $('#transit').addEventListener('keydown',e=>{const b=e.target.closest('[role="ta
 function readPreference(){try{return localStorage.getItem('shilin-market-v1')}catch{return null}}
 function writePreference(id){try{localStorage.setItem('shilin-market-v1',id)}catch{}}
 function renderList(){const items=market.foods;$('#food-list').innerHTML=items.map(f=>'<li><button class="food-button '+(f.photo?'':'no-photo')+'" data-store="'+esc(f.id)+'">'+(f.photo?'<span class="food-photo '+(f.id==='寒天Q棒'?'jelly':'')+'"><img src="/assets/'+esc(f.photo)+'" alt="" loading="lazy"><span class="rank">'+f.rank+'</span></span>':'<span class="rank">'+f.rank+'</span>')+'<span class="food-copy"><strong>'+esc(f.name)+'</strong><small>'+esc(f.subtitle)+'</small><span class="food-nav">'+esc(t.walk)+' ↗</span></span></button></li>').join('');}
-function applyMarket(id,remember=true){market=data.markets.find(m=>m.id===id);if(!market)return;t={...english,...translations[id],...window.SHILIN_NAV_UI.en,...window.SHILIN_NAV_UI[id],...window.SHILIN_COPY.en,...window.SHILIN_COPY[id]};document.documentElement.lang=pageConfig.languages[id];document.title=pageConfig.titles[id];all('[data-ui]').forEach(el=>el.textContent=t[el.dataset.ui]);$('#edition').textContent=market.edition;$('#download-btn').href='/downloads/'+id+'.pdf';$('#download-btn').download='shilin-'+id+'-a4.pdf';$('#download-btn').setAttribute('aria-label',t.download+' · PDF · A4');$('#top-title').textContent=market.top;$('#wc-label').textContent=t.toilet;$('#route-title').textContent=market.route;$('#route-copy').textContent=market.routeLines.join(' ');$('#map-viewport').setAttribute('aria-label',t.map);$('#zoom-in').setAttribute('aria-label',t.zoomIn);$('#zoom-out').setAttribute('aria-label',t.zoomOut);$('#fit').setAttribute('aria-label',t.fit);all('.dialog-close').forEach(b=>b.setAttribute('aria-label',t.close));renderTransit();$('#pins').innerHTML=market.foods.map(f=>{const p=storeById.get(f.id);return '<button class="pin" data-store="'+esc(f.id)+'" data-rank="'+f.rank+'" aria-label="'+f.rank+'. '+esc(f.name)+'" style="left:'+p.x+'px;top:'+p.y+'px"><span class="pin-face">'+f.rank+'</span></button>'}).join('');selected=null;renderList();renderPlaces();all('.market-option').forEach(el=>el.classList.toggle('current',el.dataset.language==='en'?market.lang==='en':el.dataset.market===id));if(remember){writePreference(id);}$('#language-close').hidden=false;requestAnimationFrame(fit);}
+function applyMarket(id,remember=true){market=data.markets.find(m=>m.id===id);if(!market)return;t={...english,...translations[id],...window.SHILIN_NAV_UI.en,...window.SHILIN_NAV_UI[id],...window.SHILIN_COPY.en,...window.SHILIN_COPY[id]};document.documentElement.lang=pageConfig.languages[id];document.title=pageConfig.titles[id];all('[data-ui]').forEach(el=>el.textContent=t[el.dataset.ui]);updateGestureHint();$('#edition').textContent=market.edition;$('#download-btn').href='/downloads/'+id+'.pdf';$('#download-btn').download='shilin-'+id+'-a4.pdf';$('#download-btn').setAttribute('aria-label',t.download+' · PDF · A4');$('#top-title').textContent=market.top;$('#wc-label').textContent=t.toilet;$('#route-title').textContent=market.route;$('#route-copy').textContent=market.routeLines.join(' ');$('#map-viewport').setAttribute('aria-label',t.map);$('#zoom-in').setAttribute('aria-label',t.zoomIn);$('#zoom-out').setAttribute('aria-label',t.zoomOut);$('#fit').setAttribute('aria-label',t.fit);all('.dialog-close').forEach(b=>b.setAttribute('aria-label',t.close));renderTransit();$('#pins').innerHTML=market.foods.map(f=>{const p=storeById.get(f.id);return '<button class="pin" data-store="'+esc(f.id)+'" data-rank="'+f.rank+'" aria-label="'+f.rank+'. '+esc(f.name)+'" style="left:'+p.x+'px;top:'+p.y+'px"><span class="pin-face">'+f.rank+'</span></button>'}).join('');selected=null;renderList();renderPlaces();all('.market-option').forEach(el=>el.classList.toggle('current',el.dataset.language==='en'?market.lang==='en':el.dataset.market===id));if(remember){writePreference(id);}$('#language-close').hidden=false;requestAnimationFrame(fit);}
 function update(){stage.style.transform='translate('+tx+'px,'+ty+'px) scale('+s+')';const buttonSize=44/s,faceSize=Math.min(36,Math.max(22,76*s))/s;all('.pin').forEach(p=>{p.style.width=buttonSize+'px';p.style.height=buttonSize+'px';p.style.setProperty('--pin-face',faceSize+'px');p.style.setProperty('--pin-font',faceSize*.47+'px')});all('.poi-hotspot').forEach(p=>{p.style.width=Math.max(Number(p.dataset.w),44/s)+'px';p.style.height=Math.max(Number(p.dataset.h),44/s)+'px';p.style.setProperty('--poi-badge',12/s+'px');p.style.setProperty('--poi-border',1.5/s+'px')});$('#zoom-value').value=Math.round(s/fitScale*100)+'%';$('#zoom-in').disabled=s>=fitScale*8-.001;$('#zoom-out').disabled=s<=fitScale+.001;}
 function fit(){const r=vp.getBoundingClientRect();fitScale=Math.min((r.width-16)/W,(r.height-16)/H);s=fitScale;tx=(r.width-W*s)/2;ty=(r.height-H*s)/2;update()}
 function zoom(factor,x=vp.clientWidth/2,y=vp.clientHeight/2){const n=Math.max(fitScale,Math.min(fitScale*8,s*factor));tx=x-(x-tx)*n/s;ty=y-(y-ty)*n/s;s=n;update()}
@@ -79,9 +92,34 @@ $('#food-list').addEventListener('click',e=>{const b=e.target.closest('[data-sto
 $('#zoom-in').onclick=()=>zoom(1.4);$('#zoom-out').onclick=()=>zoom(1/1.4);$('#fit').onclick=fit;$('#route-toggle').onchange=e=>$('.road-overlay').style.display=e.target.checked?'':'none';
 vp.addEventListener('wheel',e=>{if(e.target.closest('.map-controls'))return;e.preventDefault();const r=vp.getBoundingClientRect();zoom(Math.exp(-e.deltaY*.002),e.clientX-r.left,e.clientY-r.top)},{passive:false});
 function gestureStart(){const pts=[...pointers.values()];if(pts.length===1)gesture={type:'pan',x:pts[0].x,y:pts[0].y,tx,ty,moved:false};else if(pts.length>=2){const a=pts[0],b=pts[1],cx=(a.x+b.x)/2,cy=(a.y+b.y)/2;gesture={type:'pinch',distance:Math.hypot(a.x-b.x,a.y-b.y),cx,cy,s,tx,ty};}}
-vp.addEventListener('pointerdown',e=>{if(e.target.closest('.map-controls')||e.button>0)return;const r=vp.getBoundingClientRect();pointers.set(e.pointerId,{x:e.clientX-r.left,y:e.clientY-r.top});if(!e.target.closest('.pin,.poi-hotspot'))vp.setPointerCapture(e.pointerId);gestureStart()});
+vp.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'||e.target.closest('.map-controls')||e.button>0)return;const r=vp.getBoundingClientRect();pointers.set(e.pointerId,{x:e.clientX-r.left,y:e.clientY-r.top});if(!e.target.closest('.pin,.poi-hotspot'))vp.setPointerCapture(e.pointerId);gestureStart()});
 vp.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId)||!gesture)return;const r=vp.getBoundingClientRect();pointers.set(e.pointerId,{x:e.clientX-r.left,y:e.clientY-r.top});const pts=[...pointers.values()];if(gesture.type==='pinch'&&pts.length>=2){const a=pts[0],b=pts[1],cx=(a.x+b.x)/2,cy=(a.y+b.y)/2;const n=Math.max(fitScale,Math.min(fitScale*8,gesture.s*Math.hypot(a.x-b.x,a.y-b.y)/Math.max(1,gesture.distance)));tx=cx-(gesture.cx-gesture.tx)*n/gesture.s;ty=cy-(gesture.cy-gesture.ty)*n/gesture.s;s=n;suppressUntil=performance.now()+300;update()}else if(gesture.type==='pan'){const dx=pts[0].x-gesture.x,dy=pts[0].y-gesture.y;if(Math.hypot(dx,dy)>5){gesture.moved=true;suppressUntil=performance.now()+300}tx=gesture.tx+dx;ty=gesture.ty+dy;update()}});
 function pointerEnd(e){if(!pointers.has(e.pointerId))return;pointers.delete(e.pointerId);if(vp.hasPointerCapture(e.pointerId))vp.releasePointerCapture(e.pointerId);if(pointers.size)gestureStart();else gesture=null}vp.addEventListener('pointerup',pointerEnd);vp.addEventListener('pointercancel',pointerEnd);
+// Leave one-finger swipes to the page. Cancel native scrolling only after a
+// second finger touches the map, so the same gesture can pan and pinch it.
+let touchGesture=null,touchActive=false;
+const mapTouches=e=>[...e.touches].filter(p=>vp.contains(p.target)&&!p.target.closest('.map-controls'));
+function startTouchGesture(touches){
+ const r=vp.getBoundingClientRect(),[a,b]=touches;
+ touchGesture={ids:[a.identifier,b.identifier],distance:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),cx:(a.clientX+b.clientX)/2-r.left,cy:(a.clientY+b.clientY)/2-r.top,s,tx,ty};
+}
+vp.addEventListener('touchstart',e=>{
+ const touches=mapTouches(e);if(touches.length<2)return;
+ if(e.cancelable)e.preventDefault();touchActive=true;startTouchGesture(touches);suppressUntil=performance.now()+350;
+},{passive:false});
+vp.addEventListener('touchmove',e=>{
+ if(!touchActive)return;if(e.cancelable)e.preventDefault();if(!touchGesture)return;
+ const points=touchGesture.ids.map(id=>[...e.touches].find(p=>p.identifier===id));if(points.some(p=>!p))return;
+ const r=vp.getBoundingClientRect(),[a,b]=points,cx=(a.clientX+b.clientX)/2-r.left,cy=(a.clientY+b.clientY)/2-r.top;
+ const n=Math.max(fitScale,Math.min(fitScale*8,touchGesture.s*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/Math.max(1,touchGesture.distance)));
+ tx=cx-(touchGesture.cx-touchGesture.tx)*n/touchGesture.s;ty=cy-(touchGesture.cy-touchGesture.ty)*n/touchGesture.s;s=n;suppressUntil=performance.now()+350;update();
+},{passive:false});
+function endTouchGesture(e){
+ if(!touchActive)return;const touches=mapTouches(e);suppressUntil=performance.now()+350;
+ if(touches.length>=2)startTouchGesture(touches);else touchGesture=null;
+ if(!touches.length)touchActive=false;
+}
+vp.addEventListener('touchend',endTouchGesture);vp.addEventListener('touchcancel',endTouchGesture);
 vp.addEventListener('keydown',e=>{if(e.target!==vp)return;const keys=['+','=','-','0','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'];if(!keys.includes(e.key))return;e.preventDefault();if(e.key==='+'||e.key==='=')zoom(1.4);else if(e.key==='-')zoom(1/1.4);else if(e.key==='0')fit();else{tx+=e.key==='ArrowLeft'?40:e.key==='ArrowRight'?-40:0;ty+=e.key==='ArrowUp'?40:e.key==='ArrowDown'?-40:0;update()}});
 const option=id=>'<a class="market-option" href="'+marketURL(id)+'" data-market="'+id+'"><span class="market-code">'+({global:'EN',zh:'繁中',cn:'简中'}[id]||id.toUpperCase())+'</span><span><strong>'+esc(choices[id][0])+'</strong><small>'+esc(choices[id][1])+'</small></span></a>';
 
@@ -106,7 +144,13 @@ $('#language-dialog').addEventListener('click',e=>{
 function chooseLanguage(){languageStep(false,false);$('#language-dialog').showModal()}
 $('#language-btn').onclick=chooseLanguage;$('#footer-language').onclick=chooseLanguage;
 for(const id of ['language','shop']){$('#'+id+'-close').onclick=()=>$('#'+id+'-dialog').close();$('#'+id+'-dialog').addEventListener('click',e=>{if(e.target!==e.currentTarget||id==='language'&&!market)return;const r=e.currentTarget.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.currentTarget.close()})}$('#language-dialog').addEventListener('cancel',e=>{if(!market)e.preventDefault()});
-new ResizeObserver(()=>{if(market)fit()}).observe(vp);
+let viewportWidth=0;
+new ResizeObserver(()=>{
+ const width=vp.clientWidth,widthChanged=Math.abs(width-viewportWidth)>1;viewportWidth=width;
+ // Mobile address bars change the viewport height while the page scrolls.
+ // Preserve the user's map zoom; refit after a width/orientation change.
+ if(market&&(!touchInput.matches||widthChanged))fit();
+}).observe(vp);
 const legacy=new URL(location.href).searchParams.get('market');
 if(data.markets.some(m=>m.id===legacy)){location.replace(marketURL(legacy)+location.hash);return}
 const requested=pageConfig.market||readPreference();
